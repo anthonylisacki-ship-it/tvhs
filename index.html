@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shirt Orders - Tanque Verde High School Softball</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+    .header { text-align: center; margin-top: 50px; margin-bottom: 25px; }
+    .logo { max-width: 350px; width: 100%; height: auto; margin-bottom: 10px; }
+    .program-text { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 20px; }
+    .instructions { max-width: 600px; margin: 0 auto 25px auto; background-color: #f0f8ff; padding: 15px; border-radius: 8px; color: #333; font-size: 15px; line-height: 1.5; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .instructions p { margin: 8px 0; }
+    form { max-width: 600px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    label { display: block; margin: 10px 0 5px; }
+    input[type="text"], input[type="email"], select { width: 100%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+    input[type="radio"] { margin-right: 5px; }
+    .form-section { margin-bottom: 20px; }
+    .terms { margin-top: 15px; }
+    button { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; }
+    button:hover { background-color: #45a049; }
+    p.note { font-size: 0.9em; color: #555; }
+    .total-box { font-size: 18px; font-weight: bold; text-align: right; padding: 10px; background: #f0f8ff; border-radius: 6px; margin-bottom: 15px; }
+    .spinner-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #4CAF50; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .success-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 1001; text-align: center; padding-top: 100px; font-size: 18px; }
+    .success-screen a { display: inline-block; margin-top: 15px; padding: 10px 15px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <img src="vastlogo.png" alt="Vast Printing Logo" class="logo">
+  <p class="program-text">Program: Tanque Verde High School Softball</p>
+</div>
+
+<div class="instructions">
+  <p>Thank you for supporting Tanque Verde High School Softball!</p>
+  <p>Enter your player’s details below to help our teams succeed this season.</p>
+  <p>After selecting the number of supporter lines, enter each supporter’s name exactly as you want it printed on the shirt.</p>
+  <p><strong>Want to go the extra mile?</strong> Business sponsorships are $200 per line and will appear on the player’s team shirts.</p>
+  <p>Click Submit to go to Venmo—the total is calculated automatically.</p>
+  <p>Questions? Email <strong>sales@vastprintingaz.com</strong></p>
+</div>
+
+<form id="orderForm">
+  <div class="form-section">
+    <label for="playerName">Player Name:</label>
+    <input type="text" id="playerName" name="playerName" required>
+
+    <label for="shirtSize">Shirt Size:</label>
+    <select id="shirtSize" name="shirtSize" required>
+      <option value="" disabled selected>Select Shirt Size</option>
+      <option value="Youth XS">Youth XS</option>
+      <option value="Youth S">Youth S</option>
+      <option value="Youth M">Youth M</option>
+      <option value="Youth L">Youth L</option>
+      <option value="Youth XL">Youth XL</option>
+      <option value="Adult S">Adult S</option>
+      <option value="Adult M">Adult M</option>
+      <option value="Adult L">Adult L</option>
+      <option value="Adult XL">Adult XL</option>
+      <option value="Adult 2XL">Adult 2XL</option>
+      <option value="Adult 3XL">Adult 3XL</option>
+      <option value="Adult 4XL">Adult 4XL</option>
+    </select>
+
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" required>
+  </div>
+
+  <div class="form-section">
+    <p>Would you like to purchase a Business Design? ($200 per line)</p>
+    <label><input type="radio" name="businessDesign" value="yes"> Yes</label>
+    <label><input type="radio" name="businessDesign" value="no"> No</label>
+
+    <div id="businessLinesSection" style="display:none; margin-top:10px;">
+      <label>Number of Business Lines:
+        <select id="businessLinesSelect" name="businessLines">
+          <option value="" disabled selected>Select Number of Business Lines</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+          <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+          <option value="9">9</option><option value="10">10</option>
+        </select>
+      </label>
+      <div id="businessNamesContainer"></div>
+      <p class="note">EMAIL LOGO FILES TO <strong>sales@vastprintingaz.com</strong></p>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <label for="lineCount">Number of Supporter Name Lines:</label>
+    <select id="lineCount" name="lineCount" required>
+      <option value="" disabled selected>Select Number of Lines</option>
+      <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+      <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+      <option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+      <option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option>
+      <option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option>
+    </select>
+  </div>
+
+  <div class="form-section" id="playerNamesSection"></div>
+
+  <div class="total-box">
+    Estimated Total: $<span id="totalAmount">0</span>
+  </div>
+
+  <div class="form-section terms">
+    <label><input type="checkbox" name="terms" required> I understand the shirt will be printed exactly as entered.</label>
+  </div>
+
+  <button type="submit">Submit Order</button>
+</form>
+
+<div class="spinner-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
+
+<div class="success-screen" id="successScreen">
+  <h2>Order Submitted!</h2>
+  <p id="successMessage"></p>
+  <p>Redirecting to Venmo in <span id="countdown">7</span> seconds...</p>
+  <a id="venmoLink" href="#" target="_blank">Pay Now on Venmo</a>
+</div>
+
+<script>
+  const PRICE_PLAYER = 20;
+  const PRICE_BUSINESS = 200;
+
+  const designRadios = document.getElementsByName("businessDesign");
+  const businessSection = document.getElementById("businessLinesSection");
+  const businessLinesSelect = document.getElementById("businessLinesSelect");
+  const businessNamesContainer = document.getElementById("businessNamesContainer");
+
+  const lineCountSelect = document.getElementById("lineCount");
+  const playerNamesSection = document.getElementById("playerNamesSection");
+
+  const totalEl = document.getElementById("totalAmount");
+
+  const orderForm = document.getElementById("orderForm");
+  const spinnerOverlay = document.getElementById("spinnerOverlay");
+  const successScreen = document.getElementById("successScreen");
+  const successMessage = document.getElementById("successMessage");
+  const venmoLinkEl = document.getElementById("venmoLink");
+  const countdownEl = document.getElementById("countdown");
+
+  // Business toggle
+  Array.from(designRadios).forEach(radio => {
+    radio.addEventListener("change", () => {
+      if (radio.value === "yes") {
+        businessSection.style.display = "block";
+      } else {
+        businessSection.style.display = "none";
+        businessLinesSelect.value = "";
+        businessNamesContainer.innerHTML = "";
+      }
+      updateTotal();
+    });
+  });
+
+  // Business dynamic fields
+  businessLinesSelect.addEventListener("change", () => {
+    const count = parseInt(businessLinesSelect.value) || 0;
+    businessNamesContainer.innerHTML = "";
+    for (let i = 1; i <= count; i++) {
+      const label = document.createElement("label");
+      label.textContent = `Business Name for Line ${i}:`;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.name = `businessLine${i}`;
+      input.required = true;
+      label.appendChild(input);
+      businessNamesContainer.appendChild(label);
+    }
+    updateTotal();
+  });
+
+  // Supporter dynamic fields
+  function generatePlayerFields() {
+    const count = parseInt(lineCountSelect.value) || 0;
+    playerNamesSection.innerHTML = "";
+    for (let i = 1; i <= count; i++) {
+      const label = document.createElement("label");
+      label.textContent = `Supporter Name for Line ${i}:`;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.name = `line${i}`;
+      input.required = true;
+      label.appendChild(input);
+      playerNamesSection.appendChild(label);
+    }
+    updateTotal();
+  }
+  lineCountSelect.addEventListener("change", generatePlayerFields);
+
+  // Live total
+  function updateTotal() {
+    const playerLines = parseInt(lineCountSelect.value) || 0;
+    const businessSelected = Array.from(designRadios).find(r => r.checked)?.value === "yes";
+    const businessLines = businessSelected ? (parseInt(businessLinesSelect.value) || 0) : 0;
+    totalEl.textContent = (playerLines * PRICE_PLAYER) + (businessLines * PRICE_BUSINESS);
+  }
+
+  // Submit (robust: handles server errors + key name mismatch)
+  orderForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    spinnerOverlay.style.display = "flex";
+
+    const formData = new FormData(orderForm);
+    const data = {};
+    formData.forEach((v, k) => { data[k] = v; });
+
+    // Ensure server sees line1..lineN
+    for (let i = 1; i <= (parseInt(data.lineCount) || 0); i++) {
+      data[`line${i}`] = data[`line${i}`] || "";
+    }
+    if (data.businessDesign === "yes") {
+      for (let i = 1; i <= (parseInt(data.businessLines) || 0); i++) {
+        data[`businessLine${i}`] = data[`businessLine${i}`] || "";
+      }
+    }
+
+    try {
+      const response = await fetch("/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      // If server returned HTML or an error status, show it clearly
+      if (!response.ok) {
+        const text = await response.text();
+        spinnerOverlay.style.display = "none";
+        console.error("Submit failed:", response.status, text);
+        alert("Submit failed. Check the server logs/terminal for the error.");
+        return;
+      }
+
+      const result = await response.json();
+      spinnerOverlay.style.display = "none";
+
+      const amount = (result.amount ?? result.totalAmount);
+      const venmoLink = result.venmoLink;
+
+      if (amount == null || !venmoLink) {
+        console.error("Bad response JSON:", result);
+        alert("Server response missing amount or Venmo link. Check server.js response.");
+        return;
+      }
+
+      successScreen.style.display = "block";
+      successMessage.innerText = `Total: $${amount}`;
+      venmoLinkEl.href = venmoLink;
+
+      let seconds = 7;
+      countdownEl.innerText = seconds;
+      const interval = setInterval(() => {
+        seconds--;
+        countdownEl.innerText = seconds;
+        if (seconds <= 0) {
+          clearInterval(interval);
+          window.location.href = venmoLink;
+        }
+      }, 1000);
+
+    } catch (err) {
+      spinnerOverlay.style.display = "none";
+      alert("Error submitting order. Please try again.");
+      console.error(err);
+    }
+  });
+</script>
+
+</body>
+</html>
