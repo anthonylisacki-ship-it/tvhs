@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-const VENMO_USERNAME = "TVABC";
+const VENMO_USERNAME = "GoCats25";
 const PRICE_PER_PLAYER_LINE = 20;
 const PRICE_PER_BUSINESS_LINE = 200;
 
@@ -114,7 +114,7 @@ app.post("/submit", async (req, res) => {
 
 Date/Time: ${timestamp}
 
-Player Name: ${data.playerName}
+Athlete Name: ${data.playerName}
 Customer Email: ${data.email}
 Shirt Size: ${data.shirtSize}
 
@@ -135,9 +135,9 @@ ${venmoLink}
 
     const customerEmailText = `Thank you for your order!
 
-TVHS Softball Order Summary
+Wildcats Cheer Order Summary
 -----------------------
-Player Name: ${data.playerName}
+Athlete Name: ${data.playerName}
 Email: ${data.email}
 Shirt Size: ${data.shirtSize}
 
