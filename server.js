@@ -168,7 +168,7 @@ ${venmoLink}
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: data.email,
-      subject: "Your Shirt Order Confirmation — TVHS Softball",
+      subject: "Your Shirt Order Confirmation — 14U Wildcats Cheer",
       text: customerEmailText
     });
 
