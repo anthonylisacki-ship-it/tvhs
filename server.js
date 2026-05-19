@@ -97,7 +97,7 @@ app.post("/submit", async (req, res) => {
     await fs.appendFile(CSV_FILE, csvRow);
 
     // Venmo link
-    const note = encodeURIComponent(`Who Has My Back Fundraiser Softball - ${data.playerName}`);
+    const note = encodeURIComponent(`Who Has My Back Fundraiser - ${data.playerName}`);
     const venmoLink =
       `https://venmo.com/?txn=pay&recipients=${VENMO_USERNAME}&amount=${totalAmount}&note=${note}`;
 
@@ -110,7 +110,7 @@ app.post("/submit", async (req, res) => {
       ? businessLines.map((name, idx) => `  ${idx + 1}. ${name}`).join("\n")
       : "  (none)";
 
-    const adminEmailText = `New Shirt Order — TVHS Softball
+    const adminEmailText = `New Shirt Order — 14U Wildcats Cheer
 
 Date/Time: ${timestamp}
 
@@ -161,7 +161,7 @@ ${venmoLink}
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER,
-      subject: "New Shirt Order — TVHS Softball",
+      subject: "New Shirt Order — 14U Wildcats Cheer",
       text: adminEmailText
     });
 
