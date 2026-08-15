@@ -110,7 +110,7 @@ app.post("/submit", async (req, res) => {
       ? businessLines.map((name, idx) => `  ${idx + 1}. ${name}`).join("\n")
       : "  (none)";
 
-    const adminEmailText = `New Shirt Order — 14U Wildcats Cheer
+    const adminEmailText = `New Shirt Order — Pump Dance
 
 Date/Time: ${timestamp}
 
@@ -161,7 +161,7 @@ ${venmoLink}
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER,
-      subject: "New Shirt Order — 14U Wildcats Cheer",
+      subject: "New Shirt Order — Pump Dance",
       text: adminEmailText
     });
 
