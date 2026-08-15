@@ -139,7 +139,7 @@ Pump Dance Order Summary
 -----------------------
 Athlete Name: ${data.playerName}
 Email: ${data.email}
-Shirt Size: ${data.shirtSize}
+Athlete Shirt Size: ${data.shirtSize}
 
 Supporter Lines Purchased: ${playerLinesCount}
 Supporter Names:
