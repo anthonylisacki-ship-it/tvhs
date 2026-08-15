@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-const VENMO_USERNAME = "GoCats25";
+const VENMO_USERNAME = "PumpDanceBoosterClub";
 const PRICE_PER_PLAYER_LINE = 20;
 const PRICE_PER_BUSINESS_LINE = 200;
 
@@ -135,7 +135,7 @@ ${venmoLink}
 
     const customerEmailText = `Thank you for your order!
 
-Wildcats Cheer Order Summary
+Pump Dance Order Summary
 -----------------------
 Athlete Name: ${data.playerName}
 Email: ${data.email}
