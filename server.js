@@ -9,11 +9,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-const VENMO_USERNAME = "GoCats25";
-const PRICE_PER_PLAYER_LINE = 20;
-const PRICE_PER_BUSINESS_LINE = 200;
+const VENMO_USERNAME = "vastprinting";
 
-// store CSV under ./data (cleaner)
+// Venmo payment is ALWAYS $22
+const SHIRT_PRICE = 22;
+
+// Store CSV under ./data
 const DATA_DIR = path.join(__dirname, "data");
 fs.ensureDirSync(DATA_DIR);
 
@@ -26,7 +27,7 @@ const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: process.env.EMAIL_USER, // vastprintingaz@gmail.com
-    pass: process.env.EMAIL_PASS  // yaud ainy qarq piut
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -42,8 +43,9 @@ if (!fs.existsSync(CSV_FILE)) {
     "Business Design Purchased",
     "Number of Business Lines",
     ...Array.from({ length: 10 }, (_, i) => `Business Line ${i + 1}`),
-    "Total Amount"
+    "Shirt Payment"
   ];
+
   fs.writeFileSync(CSV_FILE, headers.join(",") + "\n");
 }
 
@@ -53,64 +55,113 @@ app.post("/submit", async (req, res) => {
     const data = req.body;
 
     if (!data.terms) {
-      return res.status(400).json({ error: "Terms not accepted" });
+      return res.status(400).json({
+        error: "Terms not accepted"
+      });
     }
 
-    const playerLinesCount = parseInt(data.lineCount) || 0;
+    // Number of supporter lines submitted
+    const playerLinesCount =
+      parseInt(data.lineCount, 10) || 0;
+
+    // Number of business lines submitted
     const businessLinesCount =
-      data.businessDesign === "yes" ? parseInt(data.businessLines) || 0 : 0;
+      data.businessDesign === "yes"
+        ? parseInt(data.businessLines, 10) || 0
+        : 0;
 
-    const totalAmount =
-      playerLinesCount * PRICE_PER_PLAYER_LINE +
-      businessLinesCount * PRICE_PER_BUSINESS_LINE;
+    // --------------------------------------------------
+    // VENMO PAYMENT
+    // ALWAYS $22 REGARDLESS OF NUMBER OF LINES SELECTED
+    // --------------------------------------------------
+    const totalAmount = SHIRT_PRICE;
 
-    // supporter lines
+    // -------------------- SUPPORTER LINES --------------------
     const playerLines = [];
+
     for (let i = 1; i <= playerLinesCount; i++) {
       playerLines.push(data[`line${i}`] || "");
     }
 
-    // business lines
+    // -------------------- BUSINESS LINES --------------------
     const businessLines = [];
+
     if (data.businessDesign === "yes") {
       for (let i = 1; i <= businessLinesCount; i++) {
-        businessLines.push(data[`businessLine${i}`] || "");
+        businessLines.push(
+          data[`businessLine${i}`] || ""
+        );
       }
     }
 
     const timestamp = new Date().toISOString();
 
-    // CSV row (escape quotes)
+    // -------------------- CSV ROW --------------------
     const csvRow = [
       timestamp,
       data.playerName,
       data.email,
       data.shirtSize,
       playerLinesCount,
-      ...Array.from({ length: 20 }, (_, i) => playerLines[i] || ""),
+
+      ...Array.from(
+        { length: 20 },
+        (_, i) => playerLines[i] || ""
+      ),
+
       data.businessDesign || "No",
       businessLinesCount,
-      ...Array.from({ length: 10 }, (_, i) => businessLines[i] || ""),
+
+      ...Array.from(
+        { length: 10 },
+        (_, i) => businessLines[i] || ""
+      ),
+
       totalAmount
-    ].map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",") + "\n";
+    ]
+      .map(
+        v =>
+          `"${String(v ?? "").replace(/"/g, '""')}"`
+      )
+      .join(",") + "\n";
 
     await fs.appendFile(CSV_FILE, csvRow);
 
-    // Venmo link
-    const note = encodeURIComponent(`Who Has My Back Fundraiser - ${data.playerName}`);
+    // -------------------- VENMO LINK --------------------
+    const note = encodeURIComponent(
+      `Desert Thunder Softball Supporter Shirt - ${data.playerName}`
+    );
+
     const venmoLink =
-      `https://venmo.com/?txn=pay&recipients=${VENMO_USERNAME}&amount=${totalAmount}&note=${note}`;
+      `https://venmo.com/?txn=pay` +
+      `&recipients=${VENMO_USERNAME}` +
+      `&amount=${SHIRT_PRICE}` +
+      `&note=${note}`;
 
-    // Build detailed text
-    const supporterLinesText = playerLinesCount
-      ? playerLines.map((name, idx) => `  ${idx + 1}. ${name}`).join("\n")
-      : "  (none)";
+    // -------------------- SUPPORTER TEXT --------------------
+    const supporterLinesText =
+      playerLinesCount > 0
+        ? playerLines
+            .map(
+              (name, idx) =>
+                `  ${idx + 1}. ${name}`
+            )
+            .join("\n")
+        : "  (none)";
 
-    const businessLinesText = businessLinesCount
-      ? businessLines.map((name, idx) => `  ${idx + 1}. ${name}`).join("\n")
-      : "  (none)";
+    // -------------------- BUSINESS TEXT --------------------
+    const businessLinesText =
+      businessLinesCount > 0
+        ? businessLines
+            .map(
+              (name, idx) =>
+                `  ${idx + 1}. ${name}`
+            )
+            .join("\n")
+        : "  (none)";
 
-    const adminEmailText = `New Shirt Order — 14U Wildcats Cheer
+    // -------------------- ADMIN EMAIL --------------------
+    const adminEmailText = `New Desert Thunder Softball Supporter Shirt Order
 
 Date/Time: ${timestamp}
 
@@ -118,81 +169,104 @@ Athlete Name: ${data.playerName}
 Customer Email: ${data.email}
 Shirt Size: ${data.shirtSize}
 
-Supporter Lines Purchased: ${playerLinesCount}
+Supporter Lines Submitted: ${playerLinesCount}
 Supporter Names:
 ${supporterLinesText}
 
-Business Design Purchased: ${data.businessDesign || "No"}
-Business Lines Purchased: ${businessLinesCount}
+Business Sponsorship Selected: ${data.businessDesign || "No"}
+Business Lines Submitted: ${businessLinesCount}
 Business Names:
 ${businessLinesText}
 
-Total Amount: $${totalAmount}
+Shirt Production Payment: $${SHIRT_PRICE}
 
-If you did not process your Venmo payment at checkout, please click here to finish payment:
+IMPORTANT:
+The fundraising money collected from supporters is NOT included in this payment.
+
+All fundraising money should be submitted directly to the athlete's team representative.
+
+The $${SHIRT_PRICE} Venmo payment is only for production of the supporter shirt.
+
+If the Venmo payment was not completed at checkout, use this link:
+
 ${venmoLink}
 `;
 
-    const customerEmailText = `Thank you for your order!
+    // -------------------- CUSTOMER EMAIL --------------------
+    const customerEmailText = `Thank you for supporting Desert Thunder Softball!
 
-Wildcats Cheer Order Summary
------------------------
+Desert Thunder Softball Supporter Shirt Submission
+--------------------------------------------------
+
 Athlete Name: ${data.playerName}
 Email: ${data.email}
 Shirt Size: ${data.shirtSize}
 
-Supporter Lines Purchased: ${playerLinesCount}
+Supporter Lines Submitted: ${playerLinesCount}
 Supporter Names:
 ${supporterLinesText}
 
-Business Design Purchased: ${data.businessDesign || "No"}
-Business Lines Purchased: ${businessLinesCount}
+Business Sponsorship Selected: ${data.businessDesign || "No"}
+Business Lines Submitted: ${businessLinesCount}
 Business Names:
 ${businessLinesText}
 
-Total Amount: $${totalAmount}
------------------------
+Shirt Production Payment: $${SHIRT_PRICE}
+--------------------------------------------------
 
-If you did not process your Venmo payment at checkout, please click here to finish payment:
+Please remember:
+
+All fundraising money collected should be submitted directly to your team representative.
+
+The $${SHIRT_PRICE} Venmo payment is separate from the fundraising money and is only for production of the supporter shirt.
+
+If you did not complete your Venmo payment at checkout, please use this link:
+
 ${venmoLink}
 `;
 
-    // send emails (if env vars missing, this will throw; that’s okay—we want to see it)
+    // -------------------- SEND ADMIN EMAIL --------------------
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER,
-      subject: "New Shirt Order — 14U Wildcats Cheer",
+      subject: `New Desert Thunder Softball Shirt Order - ${data.playerName}`,
       text: adminEmailText
     });
 
+    // -------------------- SEND CUSTOMER EMAIL --------------------
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: data.email,
-      subject: "Your Shirt Order Confirmation — 14U Wildcats Cheer",
+      subject: "Desert Thunder Softball Supporter Shirt Confirmation",
       text: customerEmailText
     });
 
-    // IMPORTANT: return BOTH keys so front-end never breaks
+    // -------------------- RESPONSE --------------------
     return res.json({
       venmoLink,
-      amount: totalAmount,
-      totalAmount
+      amount: SHIRT_PRICE,
+      totalAmount: SHIRT_PRICE
     });
 
   } catch (err) {
     console.error("SUBMIT ERROR:", err);
-    return res.status(500).json({ error: "Server error" });
+
+    return res.status(500).json({
+      error: "Server error"
+    });
   }
 });
 
-// CSV download
+// -------------------- CSV DOWNLOAD --------------------
 app.get("/admin/orders.csv", (req, res) => {
   res.download(CSV_FILE, "orders.csv");
 });
 
+// -------------------- START SERVER --------------------
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Open: http://localhost:${PORT}`);
-  console.log(`CSV:  http://localhost:${PORT}/admin/orders.csv`);
+  console.log(`CSV: http://localhost:${PORT}/admin/orders.csv`);
 });
